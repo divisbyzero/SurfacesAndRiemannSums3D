@@ -32,24 +32,18 @@ smooth_nx = 180;
 smooth_ny = 180;
 
 /* [Slice Parameters] */
-// Number of x-intervals for XSlice mode
-num_slices_x = 8;
-// Index (1-based) of the x-interval to render
-kx = 4;
-// Number of y-intervals for YSlice mode
-num_slices_y = 8;
-// Index (1-based) of the y-interval to render
-ky = 4;
+// Number of intervals for XSlice / YSlice / AllXSlices / AllYSlices modes
+num_slices = 8;
+// Index (1-based) of the interval to render (XSlice / YSlice modes)
+k = 4;
 // Separate slices with a gap (for AllXSlices / AllYSlices modes)
 separate_slices = false;
 // Gap in mm between slices when separate_slices = true
 slice_gap = 1.0;
 
 /* [Holder Parameters] */
-// Render the holder for AllXSlices mode (overrides output_mode when true)
-render_x_holder = false;
-// Render the holder for AllYSlices mode (overrides output_mode when true)
-render_y_holder = false;
+// Render the holder for the current slice mode (overrides output_mode when true)
+render_holder = false;
 // Margin added around the surface footprint on each side (mm)
 holder_margin = 3;
 // Total height of the holder box (mm)

@@ -16,9 +16,8 @@
 // f(x, y), xmin, xmax, ymin, ymax, nx, ny, targetxwidth,
 // verticalscalefactor, verticaltranslation, output_mode.
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
-// Optional slice controls: num_slices_x, kx, num_slices_y, ky,
-//   separate_slices, slice_gap.
-// Optional holder controls: render_x_holder, render_y_holder,
+// Optional slice controls: num_slices, k, separate_slices, slice_gap.
+// Optional holder controls: render_holder,
 //   holder_margin, holder_height, holder_slot_depth, slot_tolerance.
 
 //----------------------------
@@ -128,18 +127,18 @@ module smooth_surface() {
 
 //----------------------------
 // X-Slice Assembly
-// Divides the x-domain into num_slices_x equal intervals and renders
-// the slab for interval kx using x = midpoint of that interval.
+// Divides the x-domain into num_slices equal intervals and renders
+// the slab for interval k using x = midpoint of that interval.
 //----------------------------
 module x_slice() {
     smooth_ny_eff = is_undef(smooth_ny) ? max(2, ny * 4) : max(2, smooth_ny);
-    nx_slices     = is_undef(num_slices_x) ? 8 : num_slices_x;
-    kx_idx        = is_undef(kx) ? 4 : kx;
+    n_slices      = is_undef(num_slices) ? 8 : num_slices;
+    k_idx         = is_undef(k) ? 4 : k;
 
-    x_iw_math  = domain_width / nx_slices;          // interval width in math units
-    x_mid      = xmin + (kx_idx - 0.5) * x_iw_math; // midpoint of interval kx
-    x0_phys    = (kx_idx - 1) * x_iw_math * xscale; // physical left edge of slab
-    x1_phys    = kx_idx * x_iw_math * xscale;        // physical right edge of slab
+    x_iw_math = domain_width / n_slices;           // interval width in math units
+    x_mid     = xmin + (k_idx - 0.5) * x_iw_math; // midpoint of interval k
+    x0_phys   = (k_idx - 1) * x_iw_math * xscale; // physical left edge of slab
+    x1_phys   = k_idx * x_iw_math * xscale;        // physical right edge of slab
 
     dy_smooth_math = domain_depth / smooth_ny_eff;
 
@@ -177,18 +176,18 @@ module x_slice() {
 
 //----------------------------
 // Y-Slice Assembly
-// Divides the y-domain into num_slices_y equal intervals and renders
-// the slab for interval ky using y = midpoint of that interval.
+// Divides the y-domain into num_slices equal intervals and renders
+// the slab for interval k using y = midpoint of that interval.
 //----------------------------
 module y_slice() {
     smooth_nx_eff = is_undef(smooth_nx) ? max(2, nx * 4) : max(2, smooth_nx);
-    ny_slices     = is_undef(num_slices_y) ? 8 : num_slices_y;
-    ky_idx        = is_undef(ky) ? 4 : ky;
+    n_slices      = is_undef(num_slices) ? 8 : num_slices;
+    k_idx         = is_undef(k) ? 4 : k;
 
-    y_iw_math  = domain_depth / ny_slices;           // interval width in math units
-    y_mid      = ymin + (ky_idx - 0.5) * y_iw_math;  // midpoint of interval ky
-    y0_phys    = (ky_idx - 1) * y_iw_math * yscale;  // physical front edge of slab
-    y1_phys    = ky_idx * y_iw_math * yscale;         // physical back edge of slab
+    y_iw_math = domain_depth / n_slices;           // interval width in math units
+    y_mid     = ymin + (k_idx - 0.5) * y_iw_math; // midpoint of interval k
+    y0_phys   = (k_idx - 1) * y_iw_math * yscale; // physical front edge of slab
+    y1_phys   = k_idx * y_iw_math * yscale;        // physical back edge of slab
 
     dx_smooth_math = domain_width / smooth_nx_eff;
 
@@ -226,25 +225,25 @@ module y_slice() {
 
 //----------------------------
 // All X-Slices Assembly
-// Renders all num_slices_x slabs across the full x-domain.
+// Renders all num_slices slabs across the full x-domain.
 // When separate_slices = true, each slab is inset by slice_gap/2 on
 // each side so adjacent slabs are disjoint.
 //----------------------------
 module all_x_slices() {
     smooth_ny_eff = is_undef(smooth_ny) ? max(2, ny * 4) : max(2, smooth_ny);
-    nx_slices     = is_undef(num_slices_x) ? 8 : num_slices_x;
+    n_slices      = is_undef(num_slices) ? 8 : num_slices;
     gap           = (!is_undef(separate_slices) && separate_slices &&
                      !is_undef(slice_gap)) ? slice_gap : 0;
 
-    x_iw_math = domain_width / nx_slices;
+    x_iw_math = domain_width / n_slices;
     x_iw_phys = x_iw_math * xscale;
 
     dy_smooth_math = domain_depth / smooth_ny_eff;
 
-    for (k = [1 : nx_slices]) {
-        x_mid   = xmin + (k - 0.5) * x_iw_math;
-        x0_phys = (k - 1) * x_iw_phys + gap / 2;
-        x1_phys = k       * x_iw_phys - gap / 2;
+    for (ki = [1 : n_slices]) {
+        x_mid   = xmin + (ki - 0.5) * x_iw_math;
+        x0_phys = (ki - 1) * x_iw_phys + gap / 2;
+        x1_phys = ki       * x_iw_phys - gap / 2;
 
         for (j = [0 : smooth_ny_eff - 1]) {
             y0 = ymin + j * dy_smooth_math;
@@ -281,25 +280,25 @@ module all_x_slices() {
 
 //----------------------------
 // All Y-Slices Assembly
-// Renders all num_slices_y slabs across the full y-domain.
+// Renders all num_slices slabs across the full y-domain.
 // When separate_slices = true, each slab is inset by slice_gap/2 on
 // each side so adjacent slabs are disjoint.
 //----------------------------
 module all_y_slices() {
     smooth_nx_eff = is_undef(smooth_nx) ? max(2, nx * 4) : max(2, smooth_nx);
-    ny_slices     = is_undef(num_slices_y) ? 8 : num_slices_y;
+    n_slices      = is_undef(num_slices) ? 8 : num_slices;
     gap           = (!is_undef(separate_slices) && separate_slices &&
                      !is_undef(slice_gap)) ? slice_gap : 0;
 
-    y_iw_math = domain_depth / ny_slices;
+    y_iw_math = domain_depth / n_slices;
     y_iw_phys = y_iw_math * yscale;
 
     dx_smooth_math = domain_width / smooth_nx_eff;
 
-    for (k = [1 : ny_slices]) {
-        y_mid   = ymin + (k - 0.5) * y_iw_math;
-        y0_phys = (k - 1) * y_iw_phys + gap / 2;
-        y1_phys = k       * y_iw_phys - gap / 2;
+    for (ki = [1 : n_slices]) {
+        y_mid   = ymin + (ki - 0.5) * y_iw_math;
+        y0_phys = (ki - 1) * y_iw_phys + gap / 2;
+        y1_phys = ki       * y_iw_phys - gap / 2;
 
         for (i = [0 : smooth_nx_eff - 1]) {
             x0 = xmin + i * dx_smooth_math;
@@ -340,7 +339,7 @@ module all_y_slices() {
 // Slots run the full inner y-depth; slabs drop straight in from the top.
 //----------------------------
 module x_slice_holder() {
-    nx_slices  = is_undef(num_slices_x)     ? 8   : num_slices_x;
+    n_slices   = is_undef(num_slices)       ? 8   : num_slices;
     gap        = (!is_undef(separate_slices) && separate_slices &&
                   !is_undef(slice_gap))      ? slice_gap : 0;
     margin     = is_undef(holder_margin)     ? 3   : holder_margin;
@@ -348,7 +347,7 @@ module x_slice_holder() {
     slot_depth = is_undef(holder_slot_depth) ? 10  : holder_slot_depth;
     tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
 
-    x_iw_phys = (domain_width / nx_slices) * xscale;
+    x_iw_phys = (domain_width / n_slices) * xscale;
     slab_w    = x_iw_phys - gap;   // actual slab x-width
     slot_w    = slab_w + tol;      // slot x-width with clearance
 
@@ -357,8 +356,8 @@ module x_slice_holder() {
 
     difference() {
         cube([box_w, box_d, h]);
-        for (k = [1 : nx_slices]) {
-            slot_cx = margin + (k - 0.5) * x_iw_phys;
+        for (ki = [1 : n_slices]) {
+            slot_cx = margin + (ki - 0.5) * x_iw_phys;
             translate([slot_cx - slot_w / 2, margin, h - slot_depth])
                 cube([slot_w, targetywidth, slot_depth + 0.01]);
         }
@@ -371,7 +370,7 @@ module x_slice_holder() {
 // Slots run the full inner x-width; slabs drop straight in from the top.
 //----------------------------
 module y_slice_holder() {
-    ny_slices  = is_undef(num_slices_y)     ? 8   : num_slices_y;
+    n_slices   = is_undef(num_slices)        ? 8   : num_slices;
     gap        = (!is_undef(separate_slices) && separate_slices &&
                   !is_undef(slice_gap))      ? slice_gap : 0;
     margin     = is_undef(holder_margin)     ? 3   : holder_margin;
@@ -379,7 +378,7 @@ module y_slice_holder() {
     slot_depth = is_undef(holder_slot_depth) ? 10  : holder_slot_depth;
     tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
 
-    y_iw_phys = (domain_depth / ny_slices) * yscale;
+    y_iw_phys = (domain_depth / n_slices) * yscale;
     slab_w    = y_iw_phys - gap;   // actual slab y-width
     slot_w    = slab_w + tol;      // slot y-width with clearance
 
@@ -388,8 +387,8 @@ module y_slice_holder() {
 
     difference() {
         cube([box_w, box_d, h]);
-        for (k = [1 : ny_slices]) {
-            slot_cy = margin + (k - 0.5) * y_iw_phys;
+        for (ki = [1 : n_slices]) {
+            slot_cy = margin + (ki - 0.5) * y_iw_phys;
             translate([margin, slot_cy - slot_w / 2, h - slot_depth])
                 cube([targetxwidth, slot_w, slot_depth + 0.01]);
         }
@@ -400,10 +399,11 @@ module y_slice_holder() {
 // Final Model Assembly
 //----------------------------
 module final_model() {
-    if (!is_undef(render_x_holder) && render_x_holder)
-        x_slice_holder();
-    else if (!is_undef(render_y_holder) && render_y_holder)
-        y_slice_holder();
+    if (!is_undef(render_holder) && render_holder)
+        if (output_mode == 6)
+            y_slice_holder();
+        else
+            x_slice_holder();
     else if (output_mode == 2)
         union() {
             // Thin floor for printability and watertightness (1 mm thick)
