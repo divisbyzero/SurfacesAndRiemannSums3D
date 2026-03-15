@@ -10,8 +10,8 @@ function f(x, y) = (x == 0 && y == 0)
     : x*x / (x*x + y*y*y*y);
 
 /* [Output type] */
-// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices, 7 = XHolder, 8 = YHolder
-output_mode = 1; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices, 7:XHolder, 8:YHolder]
+// 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)
+output_mode = 1; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x slices, 6:All y slices, 7:Holder (x), 8:Holder (y)]
 
 /* [Scaling] */
 targetxwidth = 80;
