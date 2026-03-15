@@ -9,7 +9,7 @@ function f(x, y) = (1 - x*x) * (1 - y*y);
 
 /* [Output type] */
 // 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)
-output_mode = 1; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x slices, 6:All y slices, 7:Holder (x), 8:Holder (y)]
+output_mode = 8; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x slices, 6:All y slices, 7:Holder (x), 8:Holder (y)]
 
 /* [Scaling] */
 // Final model width in mm (x direction); height and depth scale proportionally
@@ -37,7 +37,7 @@ k = 4;
 // Separate slices with a gap (for AllXSlices / AllYSlices modes)
 separate_slices = true;
 // Gap in mm between slices when separate_slices = true
-slice_gap = 3.0;
+slice_gap = 3;
 
 /* [Holder Parameters] */
 // Margin added around the surface footprint on each side (mm)
@@ -47,6 +47,6 @@ holder_height = 15;
 // Depth of slots from the top of the holder (mm)
 holder_slot_depth = 10;
 // Extra clearance added to slot width for fit (mm) — increase if too tight
-slot_tolerance = 0.3;
+slot_tolerance = 0.4;
 
 include <MathSurface3d.scad>;
