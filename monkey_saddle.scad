@@ -8,8 +8,8 @@
 function f(x, y) = x*x*x - 3*x*y*y;
 
 /* [Output type] */
-// true = Riemann sum prisms, false = smooth function surface
-render_riemann = false;
+// 1 = Surface, 2 = RiemannSum
+output_mode = 1; // [1:Surface, 2:RiemannSum]
 
 /* [Scaling] */
 targetxwidth = 80;
@@ -28,4 +28,4 @@ ny = 29;
 smooth_nx = 140;
 smooth_ny = 140;
 
-include <Riemann3d.scad>;
+include <MathSurface3d.scad>;

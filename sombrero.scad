@@ -10,8 +10,8 @@ k = 0.18;
 function f(x, y) = exp(-k * sqrt(x*x + y*y)) * cos(sqrt(x*x + y*y) * (180 / PI));
 
 /* [Output type] */
-// true = Riemann sum prisms, false = smooth function surface
-render_riemann = false;
+// 1 = Surface, 2 = RiemannSum
+output_mode = 1; // [1:Surface, 2:RiemannSum]
 
 /* [Scaling] */
 // Final model width in mm (x direction); height and depth scale proportionally
@@ -31,4 +31,4 @@ ny = 29;
 smooth_nx = 180;
 smooth_ny = 180;
 
-include <Riemann3d.scad>;
+include <MathSurface3d.scad>;

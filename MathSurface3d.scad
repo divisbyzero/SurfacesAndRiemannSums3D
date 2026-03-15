@@ -1,11 +1,12 @@
 //===================================================
-// Calculus 3D Models: Riemann Sum for Functions of Two Variables
+// MathSurface3d — Versatile 3D Model Engine
 // Author: https://github.com/divisbyzero
-// Description: 
-//    This script generates a 3D printable model of a Riemann sum approximation 
-//    for a function of two variables over a rectangular domain.
+// Description:
+//    This script generates 3D printable models of mathematical
+//    surfaces and Riemann sum approximations for functions of
+//    two variables over a rectangular domain.
 //
-//    Easily modify the function, domain, subdivisions, or scaling below.
+//    Set output_mode in the including file to choose output type.
 //===================================================
 
 //----------------------------
@@ -13,7 +14,7 @@
 //----------------------------
 // This file expects these values to be defined by the including file:
 // f(x, y), xmin, xmax, ymin, ymax, nx, ny, targetxwidth,
-// verticalscalefactor, verticaltranslation, render_riemann.
+// verticalscalefactor, verticaltranslation, output_mode.
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
 
 //----------------------------
@@ -125,7 +126,7 @@ module smooth_surface() {
 // Final Model Assembly
 //----------------------------
 module final_model() {
-    if (render_riemann)
+    if (output_mode == 2)
         union() {
             // Thin floor for printability and watertightness (1 mm thick)
             cube([targetxwidth, targetywidth, 1], center = false);

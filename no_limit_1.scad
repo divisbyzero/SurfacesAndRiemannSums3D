@@ -10,8 +10,8 @@ function f(x, y) = (x == 0 && y == 0)
     : pow((x*x - y*y) / (x*x + y*y), 2);
 
 /* [Output type] */
-// true = Riemann sum prisms, false = smooth function surface
-render_riemann = false;
+// 1 = Surface, 2 = RiemannSum
+output_mode = 1; // [1:Surface, 2:RiemannSum]
 
 /* [Scaling] */
 targetxwidth = 80;
@@ -30,4 +30,4 @@ ny = 29;
 smooth_nx = 200;
 smooth_ny = 200;
 
-include <Riemann3d.scad>;
+include <MathSurface3d.scad>;
