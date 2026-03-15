@@ -18,10 +18,10 @@ verticalscalefactor = 0.5;
 verticaltranslation = 20;
 
 /* [Domain] */
-xmin = -1;
-xmax = 1;
-ymin = -1;
-ymax = 1;
+xmin = -2;
+xmax = 2;
+ymin = -2;
+ymax = 2;
 
 /* [Subdivisions] */
 nx = 29;

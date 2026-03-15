@@ -14,14 +14,14 @@ output_mode = 1; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x sli
 /* [Scaling] */
 // Final model width in mm (x direction); height and depth scale proportionally
 targetxwidth = 80;
-verticalscalefactor = 1.0;
-verticaltranslation = 40;
+verticalscalefactor = 0.5;
+verticaltranslation = 50;
 
 /* [Domain] */
-xmin = -1;
-xmax = 1.4;
-ymin = -1;
-ymax = 1.4;
+xmin = -0.8;
+xmax = 1.2;
+ymin = -0.3;
+ymax = 1.7;
 
 /* [Subdivisions] */
 nx = 29;
@@ -31,13 +31,13 @@ smooth_ny = 100;
 
 /* [Slice Parameters] */
 // Number of intervals for XSlice / YSlice / AllXSlices / AllYSlices modes
-num_slices = 8;
+num_slices = 11;
 // Index (1-based) of the interval to render (XSlice / YSlice modes)
 k = 4;
 // Separate slices with a gap (for AllXSlices / AllYSlices modes)
-separate_slices = false;
+separate_slices = true;
 // Gap in mm between slices when separate_slices = true
-slice_gap = 1.0;
+slice_gap = 3.0;
 
 /* [Holder Parameters] */
 // Margin added around the surface footprint on each side (mm)

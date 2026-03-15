@@ -14,14 +14,14 @@ output_mode = 1; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x sli
 /* [Scaling] */
 // Final model width in mm (x direction); height and depth scale proportionally
 targetxwidth = 80;
-verticalscalefactor = 0.5;
-verticaltranslation = 5;
+verticalscalefactor = 1.25;
+verticaltranslation = -400;
 
 /* [Domain] */
-xmin = -1;
-xmax = 1;
-ymin = -1;
-ymax = 1;
+xmin = -0.1;
+xmax = 0.9;
+ymin = -0.1;
+ymax = 0.9;
 
 /* [Subdivisions] */
 nx = 29;
