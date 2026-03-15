@@ -18,6 +18,8 @@
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
 // Optional slice controls: num_slices_x, kx, num_slices_y, ky,
 //   separate_slices, slice_gap.
+// Optional holder controls: render_x_holder, render_y_holder,
+//   holder_margin, holder_height, holder_slot_depth, slot_tolerance.
 
 //----------------------------
 // Derived Scaling Parameters (Do Not Edit Unless Needed)
@@ -333,10 +335,76 @@ module all_y_slices() {
 }
 
 //----------------------------
+// X-Slice Holder
+// A rectangular box with slots sized to receive each AllXSlices slab.
+// Slots run the full inner y-depth; slabs drop straight in from the top.
+//----------------------------
+module x_slice_holder() {
+    nx_slices  = is_undef(num_slices_x)     ? 8   : num_slices_x;
+    gap        = (!is_undef(separate_slices) && separate_slices &&
+                  !is_undef(slice_gap))      ? slice_gap : 0;
+    margin     = is_undef(holder_margin)     ? 3   : holder_margin;
+    h          = is_undef(holder_height)     ? 15  : holder_height;
+    slot_depth = is_undef(holder_slot_depth) ? 10  : holder_slot_depth;
+    tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
+
+    x_iw_phys = (domain_width / nx_slices) * xscale;
+    slab_w    = x_iw_phys - gap;   // actual slab x-width
+    slot_w    = slab_w + tol;      // slot x-width with clearance
+
+    box_w = targetxwidth + 2 * margin;
+    box_d = targetywidth + 2 * margin;
+
+    difference() {
+        cube([box_w, box_d, h]);
+        for (k = [1 : nx_slices]) {
+            slot_cx = margin + (k - 0.5) * x_iw_phys;
+            translate([slot_cx - slot_w / 2, margin, h - slot_depth])
+                cube([slot_w, targetywidth, slot_depth + 0.01]);
+        }
+    }
+}
+
+//----------------------------
+// Y-Slice Holder
+// A rectangular box with slots sized to receive each AllYSlices slab.
+// Slots run the full inner x-width; slabs drop straight in from the top.
+//----------------------------
+module y_slice_holder() {
+    ny_slices  = is_undef(num_slices_y)     ? 8   : num_slices_y;
+    gap        = (!is_undef(separate_slices) && separate_slices &&
+                  !is_undef(slice_gap))      ? slice_gap : 0;
+    margin     = is_undef(holder_margin)     ? 3   : holder_margin;
+    h          = is_undef(holder_height)     ? 15  : holder_height;
+    slot_depth = is_undef(holder_slot_depth) ? 10  : holder_slot_depth;
+    tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
+
+    y_iw_phys = (domain_depth / ny_slices) * yscale;
+    slab_w    = y_iw_phys - gap;   // actual slab y-width
+    slot_w    = slab_w + tol;      // slot y-width with clearance
+
+    box_w = targetxwidth + 2 * margin;
+    box_d = targetywidth + 2 * margin;
+
+    difference() {
+        cube([box_w, box_d, h]);
+        for (k = [1 : ny_slices]) {
+            slot_cy = margin + (k - 0.5) * y_iw_phys;
+            translate([margin, slot_cy - slot_w / 2, h - slot_depth])
+                cube([targetxwidth, slot_w, slot_depth + 0.01]);
+        }
+    }
+}
+
+//----------------------------
 // Final Model Assembly
 //----------------------------
 module final_model() {
-    if (output_mode == 2)
+    if (!is_undef(render_x_holder) && render_x_holder)
+        x_slice_holder();
+    else if (!is_undef(render_y_holder) && render_y_holder)
+        y_slice_holder();
+    else if (output_mode == 2)
         union() {
             // Thin floor for printability and watertightness (1 mm thick)
             cube([targetxwidth, targetywidth, 1], center = false);
