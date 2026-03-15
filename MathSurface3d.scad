@@ -16,7 +16,8 @@
 // f(x, y), xmin, xmax, ymin, ymax, nx, ny, targetxwidth,
 // verticalscalefactor, verticaltranslation, output_mode.
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
-// Optional slice controls: num_slices_x, kx, num_slices_y, ky.
+// Optional slice controls: num_slices_x, kx, num_slices_y, ky,
+//   separate_slices, slice_gap.
 
 //----------------------------
 // Derived Scaling Parameters (Do Not Edit Unless Needed)
@@ -222,6 +223,116 @@ module y_slice() {
 }
 
 //----------------------------
+// All X-Slices Assembly
+// Renders all num_slices_x slabs across the full x-domain.
+// When separate_slices = true, each slab is inset by slice_gap/2 on
+// each side so adjacent slabs are disjoint.
+//----------------------------
+module all_x_slices() {
+    smooth_ny_eff = is_undef(smooth_ny) ? max(2, ny * 4) : max(2, smooth_ny);
+    nx_slices     = is_undef(num_slices_x) ? 8 : num_slices_x;
+    gap           = (!is_undef(separate_slices) && separate_slices &&
+                     !is_undef(slice_gap)) ? slice_gap : 0;
+
+    x_iw_math = domain_width / nx_slices;
+    x_iw_phys = x_iw_math * xscale;
+
+    dy_smooth_math = domain_depth / smooth_ny_eff;
+
+    for (k = [1 : nx_slices]) {
+        x_mid   = xmin + (k - 0.5) * x_iw_math;
+        x0_phys = (k - 1) * x_iw_phys + gap / 2;
+        x1_phys = k       * x_iw_phys - gap / 2;
+
+        for (j = [0 : smooth_ny_eff - 1]) {
+            y0 = ymin + j * dy_smooth_math;
+            y1 = y0 + dy_smooth_math;
+            y0p = (y0 - ymin) * yscale;
+            y1p = (y1 - ymin) * yscale;
+
+            z0 = g(x_mid, y0);
+            z1 = g(x_mid, y1);
+
+            polyhedron(
+                points = [
+                    [x0_phys, y0p, z0],
+                    [x1_phys, y0p, z0],
+                    [x1_phys, y1p, z1],
+                    [x0_phys, y1p, z1],
+                    [x0_phys, y0p, 0],
+                    [x1_phys, y0p, 0],
+                    [x1_phys, y1p, 0],
+                    [x0_phys, y1p, 0]
+                ],
+                faces = [
+                    [0, 1, 2], [0, 2, 3],
+                    [4, 6, 5], [4, 7, 6],
+                    [0, 4, 5], [0, 5, 1],
+                    [1, 5, 6], [1, 6, 2],
+                    [2, 6, 7], [2, 7, 3],
+                    [3, 7, 4], [3, 4, 0]
+                ]
+            );
+        }
+    }
+}
+
+//----------------------------
+// All Y-Slices Assembly
+// Renders all num_slices_y slabs across the full y-domain.
+// When separate_slices = true, each slab is inset by slice_gap/2 on
+// each side so adjacent slabs are disjoint.
+//----------------------------
+module all_y_slices() {
+    smooth_nx_eff = is_undef(smooth_nx) ? max(2, nx * 4) : max(2, smooth_nx);
+    ny_slices     = is_undef(num_slices_y) ? 8 : num_slices_y;
+    gap           = (!is_undef(separate_slices) && separate_slices &&
+                     !is_undef(slice_gap)) ? slice_gap : 0;
+
+    y_iw_math = domain_depth / ny_slices;
+    y_iw_phys = y_iw_math * yscale;
+
+    dx_smooth_math = domain_width / smooth_nx_eff;
+
+    for (k = [1 : ny_slices]) {
+        y_mid   = ymin + (k - 0.5) * y_iw_math;
+        y0_phys = (k - 1) * y_iw_phys + gap / 2;
+        y1_phys = k       * y_iw_phys - gap / 2;
+
+        for (i = [0 : smooth_nx_eff - 1]) {
+            x0 = xmin + i * dx_smooth_math;
+            x1 = x0 + dx_smooth_math;
+            x0p = (x0 - xmin) * xscale;
+            x1p = (x1 - xmin) * xscale;
+
+            z0 = g(x0, y_mid);
+            z1 = g(x1, y_mid);
+
+            polyhedron(
+                points = [
+                    [x0p, y0_phys, z0],
+                    [x1p, y0_phys, z1],
+                    [x1p, y1_phys, z1],
+                    [x0p, y1_phys, z0],
+                    [x0p, y0_phys, 0],
+                    [x1p, y0_phys, 0],
+                    [x1p, y1_phys, 0],
+                    [x0p, y1_phys, 0]
+                ],
+                faces = [
+                    [0, 1, 2], [0, 2, 3],
+                    [4, 6, 5], [4, 7, 6],
+                    [0, 4, 5], [0, 5, 1],
+                    [1, 5, 6], [1, 6, 2],
+                    [2, 6, 7], [2, 7, 3],
+                    [3, 7, 4], [3, 4, 0]
+                ]
+            );
+        }
+    }
+}
+
+//----------------------------
 // Final Model Assembly
 //----------------------------
 module final_model() {
@@ -235,6 +346,10 @@ module final_model() {
         x_slice();
     else if (output_mode == 4)
         y_slice();
+    else if (output_mode == 5)
+        all_x_slices();
+    else if (output_mode == 6)
+        all_y_slices();
     else
         smooth_surface();
 }

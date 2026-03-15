@@ -10,8 +10,8 @@ function f(x, y) = (x == 0 && y == 0)
     : pow((x*x - y*y) / (x*x + y*y), 2);
 
 /* [Output type] */
-// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice
-output_mode = 1; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice]
+// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices
+output_mode = 1; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices]
 
 /* [Scaling] */
 targetxwidth = 80;
@@ -39,5 +39,9 @@ kx = 4;
 num_slices_y = 8;
 // Index (1-based) of the y-interval to render
 ky = 4;
+// Separate slices with a gap (for AllXSlices / AllYSlices modes)
+separate_slices = false;
+// Gap in mm between slices when separate_slices = true
+slice_gap = 1.0;
 
 include <MathSurface3d.scad>;
