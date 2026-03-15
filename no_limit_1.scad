@@ -10,8 +10,8 @@ function f(x, y) = (x == 0 && y == 0)
     : pow((x*x - y*y) / (x*x + y*y), 2);
 
 /* [Output type] */
-// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices
-output_mode = 1; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices]
+// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices, 7 = XHolder, 8 = YHolder
+output_mode = 1; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices, 7:XHolder, 8:YHolder]
 
 /* [Scaling] */
 targetxwidth = 80;
@@ -41,8 +41,6 @@ separate_slices = false;
 slice_gap = 1.0;
 
 /* [Holder Parameters] */
-// Render the holder for the current slice mode (overrides output_mode when true)
-render_holder = false;
 // Margin added around the surface footprint on each side (mm)
 holder_margin = 3;
 // Total height of the holder box (mm)

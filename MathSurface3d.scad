@@ -17,8 +17,8 @@
 // verticalscalefactor, verticaltranslation, output_mode.
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
 // Optional slice controls: num_slices, k, separate_slices, slice_gap.
-// Optional holder controls: render_holder,
-//   holder_margin, holder_height, holder_slot_depth, slot_tolerance.
+// Optional holder controls: holder_margin, holder_height,
+//   holder_slot_depth, slot_tolerance.
 
 //----------------------------
 // Derived Scaling Parameters (Do Not Edit Unless Needed)
@@ -399,12 +399,7 @@ module y_slice_holder() {
 // Final Model Assembly
 //----------------------------
 module final_model() {
-    if (!is_undef(render_holder) && render_holder)
-        if (output_mode == 6)
-            y_slice_holder();
-        else
-            x_slice_holder();
-    else if (output_mode == 2)
+    if (output_mode == 2)
         union() {
             // Thin floor for printability and watertightness (1 mm thick)
             cube([targetxwidth, targetywidth, 1], center = false);
@@ -418,6 +413,10 @@ module final_model() {
         all_x_slices();
     else if (output_mode == 6)
         all_y_slices();
+    else if (output_mode == 7)
+        x_slice_holder();
+    else if (output_mode == 8)
+        y_slice_holder();
     else
         smooth_surface();
 }

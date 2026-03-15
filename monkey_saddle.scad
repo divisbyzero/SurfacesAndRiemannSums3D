@@ -8,8 +8,8 @@
 function f(x, y) = x*x*x - 3*x*y*y;
 
 /* [Output type] */
-// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices
-output_mode = 6; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices]
+// 1 = Surface, 2 = RiemannSum, 3 = XSlice, 4 = YSlice, 5 = AllXSlices, 6 = AllYSlices, 7 = XHolder, 8 = YHolder
+output_mode = 8; // [1:Surface, 2:RiemannSum, 3:XSlice, 4:YSlice, 5:AllXSlices, 6:AllYSlices, 7:XHolder, 8:YHolder]
 
 /* [Scaling] */
 targetxwidth = 80;
@@ -39,8 +39,6 @@ separate_slices = true;
 slice_gap = 2.0;
 
 /* [Holder Parameters] */
-// Render the holder for the current slice mode (overrides output_mode when true)
-render_holder = false;
 // Margin added around the surface footprint on each side (mm)
 holder_margin = 3;
 // Total height of the holder box (mm)
