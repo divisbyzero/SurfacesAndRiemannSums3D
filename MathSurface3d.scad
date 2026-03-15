@@ -16,6 +16,7 @@
 // f(x, y), xmin, xmax, ymin, ymax, nx, ny, targetxwidth,
 // verticalscalefactor, verticaltranslation, output_mode.
 // Optional smooth-mode controls: smooth_nx, smooth_ny.
+// Optional slice controls: num_slices_x, kx, num_slices_y, ky.
 
 //----------------------------
 // Derived Scaling Parameters (Do Not Edit Unless Needed)
@@ -123,6 +124,104 @@ module smooth_surface() {
 }
 
 //----------------------------
+// X-Slice Assembly
+// Divides the x-domain into num_slices_x equal intervals and renders
+// the slab for interval kx using x = midpoint of that interval.
+//----------------------------
+module x_slice() {
+    smooth_ny_eff = is_undef(smooth_ny) ? max(2, ny * 4) : max(2, smooth_ny);
+    nx_slices     = is_undef(num_slices_x) ? 8 : num_slices_x;
+    kx_idx        = is_undef(kx) ? 4 : kx;
+
+    x_iw_math  = domain_width / nx_slices;          // interval width in math units
+    x_mid      = xmin + (kx_idx - 0.5) * x_iw_math; // midpoint of interval kx
+    x0_phys    = (kx_idx - 1) * x_iw_math * xscale; // physical left edge of slab
+    x1_phys    = kx_idx * x_iw_math * xscale;        // physical right edge of slab
+
+    dy_smooth_math = domain_depth / smooth_ny_eff;
+
+    for (j = [0 : smooth_ny_eff - 1]) {
+        y0 = ymin + j * dy_smooth_math;
+        y1 = y0 + dy_smooth_math;
+        y0p = (y0 - ymin) * yscale;
+        y1p = (y1 - ymin) * yscale;
+
+        z0 = g(x_mid, y0);   // height at y0 using midpoint x
+        z1 = g(x_mid, y1);   // height at y1 using midpoint x
+
+        polyhedron(
+            points = [
+                [x0_phys, y0p, z0],
+                [x1_phys, y0p, z0],
+                [x1_phys, y1p, z1],
+                [x0_phys, y1p, z1],
+                [x0_phys, y0p, 0],
+                [x1_phys, y0p, 0],
+                [x1_phys, y1p, 0],
+                [x0_phys, y1p, 0]
+            ],
+            faces = [
+                [0, 1, 2], [0, 2, 3],
+                [4, 6, 5], [4, 7, 6],
+                [0, 4, 5], [0, 5, 1],
+                [1, 5, 6], [1, 6, 2],
+                [2, 6, 7], [2, 7, 3],
+                [3, 7, 4], [3, 4, 0]
+            ]
+        );
+    }
+}
+
+//----------------------------
+// Y-Slice Assembly
+// Divides the y-domain into num_slices_y equal intervals and renders
+// the slab for interval ky using y = midpoint of that interval.
+//----------------------------
+module y_slice() {
+    smooth_nx_eff = is_undef(smooth_nx) ? max(2, nx * 4) : max(2, smooth_nx);
+    ny_slices     = is_undef(num_slices_y) ? 8 : num_slices_y;
+    ky_idx        = is_undef(ky) ? 4 : ky;
+
+    y_iw_math  = domain_depth / ny_slices;           // interval width in math units
+    y_mid      = ymin + (ky_idx - 0.5) * y_iw_math;  // midpoint of interval ky
+    y0_phys    = (ky_idx - 1) * y_iw_math * yscale;  // physical front edge of slab
+    y1_phys    = ky_idx * y_iw_math * yscale;         // physical back edge of slab
+
+    dx_smooth_math = domain_width / smooth_nx_eff;
+
+    for (i = [0 : smooth_nx_eff - 1]) {
+        x0 = xmin + i * dx_smooth_math;
+        x1 = x0 + dx_smooth_math;
+        x0p = (x0 - xmin) * xscale;
+        x1p = (x1 - xmin) * xscale;
+
+        z0 = g(x0, y_mid);   // height at x0 using midpoint y
+        z1 = g(x1, y_mid);   // height at x1 using midpoint y
+
+        polyhedron(
+            points = [
+                [x0p, y0_phys, z0],
+                [x1p, y0_phys, z1],
+                [x1p, y1_phys, z1],
+                [x0p, y1_phys, z0],
+                [x0p, y0_phys, 0],
+                [x1p, y0_phys, 0],
+                [x1p, y1_phys, 0],
+                [x0p, y1_phys, 0]
+            ],
+            faces = [
+                [0, 1, 2], [0, 2, 3],
+                [4, 6, 5], [4, 7, 6],
+                [0, 4, 5], [0, 5, 1],
+                [1, 5, 6], [1, 6, 2],
+                [2, 6, 7], [2, 7, 3],
+                [3, 7, 4], [3, 4, 0]
+            ]
+        );
+    }
+}
+
+//----------------------------
 // Final Model Assembly
 //----------------------------
 module final_model() {
@@ -132,6 +231,10 @@ module final_model() {
             cube([targetxwidth, targetywidth, 1], center = false);
             riemann_surface();
         }
+    else if (output_mode == 3)
+        x_slice();
+    else if (output_mode == 4)
+        y_slice();
     else
         smooth_surface();
 }
