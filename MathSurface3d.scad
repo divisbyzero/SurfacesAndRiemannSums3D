@@ -348,8 +348,9 @@ module x_slice_holder() {
     tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
 
     x_iw_phys = (domain_width / n_slices) * xscale;
-    slab_w    = x_iw_phys - gap;   // actual slab x-width
-    slot_w    = slab_w + tol;      // slot x-width with clearance
+    slab_w    = x_iw_phys - gap;     // actual slab x-width
+    slot_w    = slab_w + tol;        // slot x-width with side clearance
+    slot_d    = targetywidth + tol;  // slot y-depth with end clearance
 
     box_w = targetxwidth + 2 * margin;
     box_d = targetywidth + 2 * margin;
@@ -358,8 +359,8 @@ module x_slice_holder() {
         cube([box_w, box_d, h]);
         for (ki = [1 : n_slices]) {
             slot_cx = margin + (ki - 0.5) * x_iw_phys;
-            translate([slot_cx - slot_w / 2, margin, h - slot_depth])
-                cube([slot_w, targetywidth, slot_depth + 0.01]);
+            translate([slot_cx - slot_w / 2, margin - tol / 2, h - slot_depth])
+                cube([slot_w, slot_d, slot_depth + 0.01]);
         }
     }
 }
@@ -379,8 +380,9 @@ module y_slice_holder() {
     tol        = is_undef(slot_tolerance)    ? 0.3 : slot_tolerance;
 
     y_iw_phys = (domain_depth / n_slices) * yscale;
-    slab_w    = y_iw_phys - gap;   // actual slab y-width
-    slot_w    = slab_w + tol;      // slot y-width with clearance
+    slab_w    = y_iw_phys - gap;     // actual slab y-width
+    slot_w    = slab_w + tol;        // slot y-width with side clearance
+    slot_d    = targetxwidth + tol;  // slot x-depth with end clearance
 
     box_w = targetxwidth + 2 * margin;
     box_d = targetywidth + 2 * margin;
@@ -389,8 +391,8 @@ module y_slice_holder() {
         cube([box_w, box_d, h]);
         for (ki = [1 : n_slices]) {
             slot_cy = margin + (ki - 0.5) * y_iw_phys;
-            translate([margin, slot_cy - slot_w / 2, h - slot_depth])
-                cube([targetxwidth, slot_w, slot_depth + 0.01]);
+            translate([margin - tol / 2, slot_cy - slot_w / 2, h - slot_depth])
+                cube([slot_d, slot_w, slot_depth + 0.01]);
         }
     }
 }

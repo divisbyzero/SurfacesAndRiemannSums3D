@@ -46,7 +46,7 @@ holder_margin = 3;
 holder_height = 15;
 // Depth of slots from the top of the holder (mm)
 holder_slot_depth = 10;
-// Extra clearance added to slot width for fit (mm) — increase if too tight
+// Extra clearance added to slot width and ends for fit (mm) — increase if too tight
 slot_tolerance = 0.3;
 
 include <MathSurface3d.scad>;
