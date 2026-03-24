@@ -5,9 +5,9 @@
 /* [Function Parameters] */
 
 // Decay constant for the sombrero profile.
-k = 0.18;
+decay = 0.18;
 
-function f(x, y) = exp(-k * sqrt(x*x + y*y)) * cos(sqrt(x*x + y*y) * (180 / PI));
+function f(x, y) = exp(-decay * sqrt(x*x + y*y)) * cos(sqrt(x*x + y*y) * (180 / PI));
 
 /* [Output type] */
 // 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)
