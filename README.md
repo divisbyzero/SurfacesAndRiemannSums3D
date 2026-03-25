@@ -36,6 +36,14 @@ This repository contains OpenSCAD models for multivariable calculus surfaces and
   <img src="no_limit_1.jpeg" alt="No-limit surface example" width="450">
 </p>
 
+## Infinite-Limit Example
+
+`infinite_limit.jpeg` shows the surface for the `infinite_limit.scad` function.
+
+<p align="center">
+  <img src="infinite_limit.jpeg" alt="Infinite-limit surface example" width="450">
+</p>
+
 ## Interactive Previews
 
 - [Monkey saddle model](MonkeySaddle.stl) (preview STL file)
@@ -88,7 +96,7 @@ Most files also support multiple output modes such as full surface, Riemann sum 
   - `QuarticPolynomial.scad`
   - `sombrero.scad`
 - Example assets:
-  - Images: `MonkeySaddle.jpeg`, `SombreroFunction.jpeg`, `slices_example.jpeg`, `no_limit_1.jpeg`
+  - Images: `MonkeySaddle.jpeg`, `SombreroFunction.jpeg`, `slices_example.jpeg`, `no_limit_1.jpeg`, `infinite_limit.jpeg`
   - STLs: `MonkeySaddle.stl`, `Sombrero.stl`, `infinite_limit.stl`, `no_limit_1.stl`, `no_limit_2.stl`, `LocalMax.stl`, `LocalMaxXSlices.stl`, `LocalMaxYSlices.stl`, `holder.stl`, `y_slices.stl`
 
 ## License
