@@ -1,5 +1,6 @@
 //===================================================
-// Only critical point in town: a 3D plot of a function with a single critical point at the origin.
+// Only critical point in town: a 3D plot of a function with a single critical point that is a local maximum but not a global maximum.
+// This shows that the "only critical point in town" is not necessarily the highest point on the surface (unlike in single-variable calculus).
 // Main entry file with all user-editable parameters.
 //===================================================
 
