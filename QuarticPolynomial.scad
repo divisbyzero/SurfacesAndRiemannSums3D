@@ -6,6 +6,7 @@
 /* [Function] */
 // f(x, y) = 4 - x^4 - y^4 + x^2 + y^2 - x^2 y^2
 function f(x, y) = 4 - x*x*x*x - y*y*y*y + x*x + y*y - x*x*y*y;
+truncate_at_xy_plane = false; // Truncate the final surface at the xy-plane
 
 /* [Output type] */
 // 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)

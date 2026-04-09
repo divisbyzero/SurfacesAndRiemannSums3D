@@ -19,6 +19,7 @@
 // Optional slice controls: num_slices, k, separate_slices, slice_gap.
 // Optional holder controls: holder_margin, holder_height,
 //   holder_slot_depth, slot_tolerance.
+// Optional clipping control: truncate_at_xy_plane.
 
 //----------------------------
 // Derived Scaling Parameters (Do Not Edit Unless Needed)
@@ -40,8 +41,11 @@ dy_math = domain_depth / ny;
 dx_phys = dx_math * xscale;
 dy_phys = dy_math * yscale;
 
-// Scaled and translated function
-function g(x, y) = zscale * (verticalscalefactor * f(x, y)) + verticaltranslation;
+truncate_at_xy_plane_eff = !is_undef(truncate_at_xy_plane) && truncate_at_xy_plane;
+
+// Scaled and translated function; optionally clamp below xy-plane.
+function g_raw(x, y) = zscale * (verticalscalefactor * f(x, y)) + verticaltranslation;
+function g(x, y) = truncate_at_xy_plane_eff ? max(0, g_raw(x, y)) : g_raw(x, y);
 
 //----------------------------
 // Riemann Prism Generator

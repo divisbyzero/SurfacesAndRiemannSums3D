@@ -1,52 +1,51 @@
 //===================================================
-// Monkey Saddle
+// Only critical point in town: a 3D plot of a function with a single critical point at the origin.
 // Main entry file with all user-editable parameters.
 //===================================================
 
-/* [Function] */
-// f(x, y) = x^3 - 3xy^2
-function f(x, y) = x*x*x - 3*x*y*y;
-truncate_at_xy_plane = false; // Truncate the final surface at the xy-plane
+/* [Function Parameters] */
+function f(x, y) = 3*x*exp(y)-x^3-exp(3*y);
+truncate_at_xy_plane = true; // Truncate the final surface at the xy-plane
 
 /* [Output type] */
 // 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)
-output_mode = 8; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x slices, 6:All y slices, 7:Holder (x), 8:Holder (y)]
+output_mode = 1; // [1:Surface, 2:Riemann sum, 3:x slice, 4:y slice, 5:All x slices, 6:All y slices, 7:Holder (x), 8:Holder (y)]
 
 /* [Scaling] */
 targetxwidth = 80;
-verticalscalefactor = 0.04;
+verticalscalefactor = 1;
 verticaltranslation = 30;
 
 /* [Domain] */
-xmin = -2.5;
-xmax = 2.5;
-ymin = -2.5;
-ymax = 2.5;
+xmin = -1.15;
+xmax = 1.85;
+ymin = -2.25;
+ymax = .75;
 
 /* [Subdivisions] */
 nx = 29;
 ny = 29;
-smooth_nx = 140;
-smooth_ny = 140;
+smooth_nx = 200;
+smooth_ny = 200;
 
 /* [Slice Parameters] */
 // Number of intervals for XSlice / YSlice / AllXSlices / AllYSlices modes
-num_slices = 15;
+num_slices = 8;
 // Index (1-based) of the interval to render (XSlice / YSlice modes)
-k = 3;
+k = 4;
 // Separate slices with a gap (for AllXSlices / AllYSlices modes)
-separate_slices = true;
+separate_slices = false;
 // Gap in mm between slices when separate_slices = true
-slice_gap = 2.0;
+slice_gap = 1.0;
 
 /* [Holder Parameters] */
 // Margin added around the surface footprint on each side (mm)
 holder_margin = 3;
 // Total height of the holder box (mm)
-holder_height = 10;
+holder_height = 15;
 // Depth of slots from the top of the holder (mm)
-holder_slot_depth = 5;
+holder_slot_depth = 10;
 // Extra clearance added to slot width and ends for fit (mm) — increase if too tight
-slot_tolerance = 0.3;
+slot_tolerance = 0.4;
 
 include <MathSurface3d.scad>;

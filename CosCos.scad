@@ -6,6 +6,7 @@
 /* [Function] */
 // f(x, y) = cos(π x) cos(π y)
 function f(x, y) = cos(x * 180) * cos(y * 180);
+truncate_at_xy_plane = false; // Truncate the final surface at the xy-plane
 
 /* [Output type] */
 // 1 = Surface, 2 = Riemann sum, 3 = x slice, 4 = y slice, 5 = All x slices, 6 = All y slices, 7 = Holder (x), 8 = Holder (y)
