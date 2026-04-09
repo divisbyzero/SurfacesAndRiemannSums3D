@@ -42,10 +42,12 @@ dx_phys = dx_math * xscale;
 dy_phys = dy_math * yscale;
 
 truncate_at_xy_plane_eff = !is_undef(truncate_at_xy_plane) && truncate_at_xy_plane;
+z_clip_eps = 0.001;
 
 // Scaled and translated function; optionally clamp below xy-plane.
 function g_raw(x, y) = zscale * (verticalscalefactor * f(x, y)) + verticaltranslation;
 function g(x, y) = truncate_at_xy_plane_eff ? max(0, g_raw(x, y)) : g_raw(x, y);
+function z_top_for_poly(z) = truncate_at_xy_plane_eff ? max(z_clip_eps, z) : z;
 
 //----------------------------
 // Riemann Prism Generator
@@ -55,8 +57,9 @@ module riemann_prism(i, j) {
     y0 = ymin + j * dy_math;
     z = g(x0 + dx_math/2, y0 + dy_math/2);
 
-    translate([0, 0, 0.01])  // Slight lift to avoid base artifacts
-        cube([dx_phys, dy_phys, z], center = false);
+    if (!truncate_at_xy_plane_eff || z > 0)
+        translate([0, 0, 0.01])  // Slight lift to avoid base artifacts
+            cube([dx_phys, dy_phys, truncate_at_xy_plane_eff ? max(z_clip_eps, z) : z], center = false);
 }
 
 //----------------------------
@@ -97,27 +100,28 @@ module smooth_cell(i, j) {
     z11 = g(x1, y1);
     z01 = g(x0, y1);
 
-    // Solid cell with bilinear-style top sampled at corners.
-    polyhedron(
-        points = [
-            [x0p, y0p, z00],
-            [x1p, y0p, z10],
-            [x1p, y1p, z11],
-            [x0p, y1p, z01],
-            [x0p, y0p, 0],
-            [x1p, y0p, 0],
-            [x1p, y1p, 0],
-            [x0p, y1p, 0]
-        ],
-        faces = [
-            [0, 1, 2], [0, 2, 3],
-            [4, 6, 5], [4, 7, 6],
-            [0, 4, 5], [0, 5, 1],
-            [1, 5, 6], [1, 6, 2],
-            [2, 6, 7], [2, 7, 3],
-            [3, 7, 4], [3, 4, 0]
-        ]
-    );
+    if (!truncate_at_xy_plane_eff || max(z00, z10, z11, z01) > 0)
+        // Solid cell with bilinear-style top sampled at corners.
+        polyhedron(
+            points = [
+                [x0p, y0p, z_top_for_poly(z00)],
+                [x1p, y0p, z_top_for_poly(z10)],
+                [x1p, y1p, z_top_for_poly(z11)],
+                [x0p, y1p, z_top_for_poly(z01)],
+                [x0p, y0p, 0],
+                [x1p, y0p, 0],
+                [x1p, y1p, 0],
+                [x0p, y1p, 0]
+            ],
+            faces = [
+                [0, 1, 2], [0, 2, 3],
+                [4, 6, 5], [4, 7, 6],
+                [0, 4, 5], [0, 5, 1],
+                [1, 5, 6], [1, 6, 2],
+                [2, 6, 7], [2, 7, 3],
+                [3, 7, 4], [3, 4, 0]
+            ]
+        );
 }
 
 module smooth_surface() {
@@ -155,26 +159,27 @@ module x_slice() {
         z0 = g(x_mid, y0);   // height at y0 using midpoint x
         z1 = g(x_mid, y1);   // height at y1 using midpoint x
 
-        polyhedron(
-            points = [
-                [x0_phys, y0p, z0],
-                [x1_phys, y0p, z0],
-                [x1_phys, y1p, z1],
-                [x0_phys, y1p, z1],
-                [x0_phys, y0p, 0],
-                [x1_phys, y0p, 0],
-                [x1_phys, y1p, 0],
-                [x0_phys, y1p, 0]
-            ],
-            faces = [
-                [0, 1, 2], [0, 2, 3],
-                [4, 6, 5], [4, 7, 6],
-                [0, 4, 5], [0, 5, 1],
-                [1, 5, 6], [1, 6, 2],
-                [2, 6, 7], [2, 7, 3],
-                [3, 7, 4], [3, 4, 0]
-            ]
-        );
+        if (!truncate_at_xy_plane_eff || max(z0, z1) > 0)
+            polyhedron(
+                points = [
+                    [x0_phys, y0p, z_top_for_poly(z0)],
+                    [x1_phys, y0p, z_top_for_poly(z0)],
+                    [x1_phys, y1p, z_top_for_poly(z1)],
+                    [x0_phys, y1p, z_top_for_poly(z1)],
+                    [x0_phys, y0p, 0],
+                    [x1_phys, y0p, 0],
+                    [x1_phys, y1p, 0],
+                    [x0_phys, y1p, 0]
+                ],
+                faces = [
+                    [0, 1, 2], [0, 2, 3],
+                    [4, 6, 5], [4, 7, 6],
+                    [0, 4, 5], [0, 5, 1],
+                    [1, 5, 6], [1, 6, 2],
+                    [2, 6, 7], [2, 7, 3],
+                    [3, 7, 4], [3, 4, 0]
+                ]
+            );
     }
 }
 
@@ -204,26 +209,27 @@ module y_slice() {
         z0 = g(x0, y_mid);   // height at x0 using midpoint y
         z1 = g(x1, y_mid);   // height at x1 using midpoint y
 
-        polyhedron(
-            points = [
-                [x0p, y0_phys, z0],
-                [x1p, y0_phys, z1],
-                [x1p, y1_phys, z1],
-                [x0p, y1_phys, z0],
-                [x0p, y0_phys, 0],
-                [x1p, y0_phys, 0],
-                [x1p, y1_phys, 0],
-                [x0p, y1_phys, 0]
-            ],
-            faces = [
-                [0, 1, 2], [0, 2, 3],
-                [4, 6, 5], [4, 7, 6],
-                [0, 4, 5], [0, 5, 1],
-                [1, 5, 6], [1, 6, 2],
-                [2, 6, 7], [2, 7, 3],
-                [3, 7, 4], [3, 4, 0]
-            ]
-        );
+        if (!truncate_at_xy_plane_eff || max(z0, z1) > 0)
+            polyhedron(
+                points = [
+                    [x0p, y0_phys, z_top_for_poly(z0)],
+                    [x1p, y0_phys, z_top_for_poly(z1)],
+                    [x1p, y1_phys, z_top_for_poly(z1)],
+                    [x0p, y1_phys, z_top_for_poly(z0)],
+                    [x0p, y0_phys, 0],
+                    [x1p, y0_phys, 0],
+                    [x1p, y1_phys, 0],
+                    [x0p, y1_phys, 0]
+                ],
+                faces = [
+                    [0, 1, 2], [0, 2, 3],
+                    [4, 6, 5], [4, 7, 6],
+                    [0, 4, 5], [0, 5, 1],
+                    [1, 5, 6], [1, 6, 2],
+                    [2, 6, 7], [2, 7, 3],
+                    [3, 7, 4], [3, 4, 0]
+                ]
+            );
     }
 }
 
@@ -258,26 +264,27 @@ module all_x_slices() {
             z0 = g(x_mid, y0);
             z1 = g(x_mid, y1);
 
-            polyhedron(
-                points = [
-                    [x0_phys, y0p, z0],
-                    [x1_phys, y0p, z0],
-                    [x1_phys, y1p, z1],
-                    [x0_phys, y1p, z1],
-                    [x0_phys, y0p, 0],
-                    [x1_phys, y0p, 0],
-                    [x1_phys, y1p, 0],
-                    [x0_phys, y1p, 0]
-                ],
-                faces = [
-                    [0, 1, 2], [0, 2, 3],
-                    [4, 6, 5], [4, 7, 6],
-                    [0, 4, 5], [0, 5, 1],
-                    [1, 5, 6], [1, 6, 2],
-                    [2, 6, 7], [2, 7, 3],
-                    [3, 7, 4], [3, 4, 0]
-                ]
-            );
+            if (!truncate_at_xy_plane_eff || max(z0, z1) > 0)
+                polyhedron(
+                    points = [
+                        [x0_phys, y0p, z_top_for_poly(z0)],
+                        [x1_phys, y0p, z_top_for_poly(z0)],
+                        [x1_phys, y1p, z_top_for_poly(z1)],
+                        [x0_phys, y1p, z_top_for_poly(z1)],
+                        [x0_phys, y0p, 0],
+                        [x1_phys, y0p, 0],
+                        [x1_phys, y1p, 0],
+                        [x0_phys, y1p, 0]
+                    ],
+                    faces = [
+                        [0, 1, 2], [0, 2, 3],
+                        [4, 6, 5], [4, 7, 6],
+                        [0, 4, 5], [0, 5, 1],
+                        [1, 5, 6], [1, 6, 2],
+                        [2, 6, 7], [2, 7, 3],
+                        [3, 7, 4], [3, 4, 0]
+                    ]
+                );
         }
     }
 }
@@ -313,26 +320,27 @@ module all_y_slices() {
             z0 = g(x0, y_mid);
             z1 = g(x1, y_mid);
 
-            polyhedron(
-                points = [
-                    [x0p, y0_phys, z0],
-                    [x1p, y0_phys, z1],
-                    [x1p, y1_phys, z1],
-                    [x0p, y1_phys, z0],
-                    [x0p, y0_phys, 0],
-                    [x1p, y0_phys, 0],
-                    [x1p, y1_phys, 0],
-                    [x0p, y1_phys, 0]
-                ],
-                faces = [
-                    [0, 1, 2], [0, 2, 3],
-                    [4, 6, 5], [4, 7, 6],
-                    [0, 4, 5], [0, 5, 1],
-                    [1, 5, 6], [1, 6, 2],
-                    [2, 6, 7], [2, 7, 3],
-                    [3, 7, 4], [3, 4, 0]
-                ]
-            );
+            if (!truncate_at_xy_plane_eff || max(z0, z1) > 0)
+                polyhedron(
+                    points = [
+                        [x0p, y0_phys, z_top_for_poly(z0)],
+                        [x1p, y0_phys, z_top_for_poly(z1)],
+                        [x1p, y1_phys, z_top_for_poly(z1)],
+                        [x0p, y1_phys, z_top_for_poly(z0)],
+                        [x0p, y0_phys, 0],
+                        [x1p, y0_phys, 0],
+                        [x1p, y1_phys, 0],
+                        [x0p, y1_phys, 0]
+                    ],
+                    faces = [
+                        [0, 1, 2], [0, 2, 3],
+                        [4, 6, 5], [4, 7, 6],
+                        [0, 4, 5], [0, 5, 1],
+                        [1, 5, 6], [1, 6, 2],
+                        [2, 6, 7], [2, 7, 3],
+                        [3, 7, 4], [3, 4, 0]
+                    ]
+                );
         }
     }
 }
