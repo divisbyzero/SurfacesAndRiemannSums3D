@@ -7,6 +7,12 @@
 
 This repository contains OpenSCAD models for multivariable calculus surfaces and Riemann-sum-style visualizations of functions of two variables. It includes multiple `.scad` entry files, a shared surface engine, and several pre-generated `.stl` examples.
 
+Recent updates include:
+
+- A `truncate_at_xy_plane` toggle to clip geometry below the xy-plane after scaling/translation.
+- Manifold-safe truncation behavior for smoother rendering/export with OpenSCAD CGAL.
+- Expanded slice workflow (single slice, all slices, optional separation gap) plus x/y holder generation.
+
 ## Mathematical Description
 
 - For Riemann-sum outputs, the model approximates the volume under a surface \( z = f(x, y) \) over a rectangular domain.
@@ -70,16 +76,36 @@ This repository contains OpenSCAD models for multivariable calculus surfaces and
   - `CosCos.scad`
   - `GaussianCos.scad`
   - `QuarticPolynomial.scad`
-- Customize parameters:
-  - In the selected main function file: `xmin`, `xmax`, `ymin`, `ymax`, `nx`, `ny`, `targetxwidth`, `verticalscalefactor`, `verticaltranslation`, and `k`.
-  - The function definition `f(x, y)` is also in that same file.
-  - `nx`, `ny`: Number of subdivisions in the \( x \) and \( y \) directions.
-  - `targetxwidth`: Set the final width of the printed model (in millimeters); other dimensions scale proportionally.
-- `MathSurface3d.scad` is the shared engine file included by each function file.
+  - `only_critical_point_in_town.scad`
+  - `only_critical_point_in_town_2.scad`
+- Set the function in that file: `function f(x, y) = ...;`
+- Choose output with `output_mode`:
+  - `1` = Surface
+  - `2` = Riemann sum
+  - `3` = x slice
+  - `4` = y slice
+  - `5` = All x slices
+  - `6` = All y slices
+  - `7` = Holder (x)
+  - `8` = Holder (y)
+- Configure parameters in the same entry file:
+  - Function/truncation: `truncate_at_xy_plane`
+  - Scaling: `targetxwidth`, `verticalscalefactor`, `verticaltranslation`
+  - Domain: `xmin`, `xmax`, `ymin`, `ymax`
+  - Resolution: `nx`, `ny`, `smooth_nx`, `smooth_ny`
+  - Slice controls: `num_slices`, `k`, `separate_slices`, `slice_gap`
+  - Holder controls: `holder_margin`, `holder_height`, `holder_slot_depth`, `slot_tolerance`
+- `MathSurface3d.scad` is the shared engine file included by each entry file.
 - Render the model.
 - Export the model to STL for 3D printing or visualization.
 
 Most files also support multiple output modes such as full surface, Riemann sum boxes, x/y slices, and holder-compatible outputs.
+
+## Truncation Behavior (`truncate_at_xy_plane`)
+
+- `false` (default behavior): full transformed surface/volume is generated.
+- `true`: heights are clipped to the xy-plane (`z >= 0`) after scaling and vertical translation.
+- Truncation is implemented to avoid zero-height/degenerate cells that can trigger CGAL non-closed mesh errors in OpenSCAD renders.
 
 ## Files Included
 
@@ -93,11 +119,13 @@ Most files also support multiple output modes such as full surface, Riemann sum 
   - `no_limit_1.scad`
   - `no_limit_2.scad`
   - `not_differentiable.scad`
+  - `only_critical_point_in_town.scad`
+  - `only_critical_point_in_town_2.scad`
   - `QuarticPolynomial.scad`
   - `sombrero.scad`
 - Example assets:
   - Images: `MonkeySaddle.jpeg`, `SombreroFunction.jpeg`, `slices_example.jpeg`, `no_limit_1.jpeg`, `infinite_limit.jpeg`
-  - STLs: `MonkeySaddle.stl`, `Sombrero.stl`, `infinite_limit.stl`, `no_limit_1.stl`, `no_limit_2.stl`, `LocalMax.stl`, `LocalMaxXSlices.stl`, `LocalMaxYSlices.stl`, `holder.stl`, `y_slices.stl`
+  - STLs: `MonkeySaddle.stl`, `Sombrero.stl`, `infinite_limit.stl`, `no_limit_1.stl`, `no_limit_2.stl`, `not_differentiable.stl`, `LocalMax.stl`, `LocalMaxXSlices.stl`, `LocalMaxYSlices.stl`, `only_critical_point_in_town.stl`, `only_critical_point_in_town_2.stl`, `holder.stl`, `y_slices.stl`
 
 ## License
 
